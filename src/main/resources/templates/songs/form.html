@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Upload song')}"></head>
+<body>
+<header th:replace="~{fragments :: header('songs')}"></header>
+<main class="container narrow">
+    <h1>Upload a song</h1>
+
+    <p th:if="${#lists.isEmpty(albums)}" class="flash flash-err">
+        You need an album first. <a th:href="@{/artists}">Create an artist and album</a>.
+    </p>
+
+    <form th:action="@{/songs/new}" th:object="${songForm}" method="post"
+          enctype="multipart/form-data" class="form">
+        <label>Title
+            <input type="text" th:field="*{title}" th:errorclass="invalid">
+        </label>
+        <p class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
+
+        <label>Duration (seconds)
+            <input type="number" min="1" th:field="*{durationSeconds}" th:errorclass="invalid">
+        </label>
+        <p class="field-error" th:if="${#fields.hasErrors('durationSeconds')}"
+           th:errors="*{durationSeconds}"></p>
+
+        <label>Album
+            <select th:field="*{albumId}" th:errorclass="invalid">
+                <option value="">Choose an album…</option>
+                <option th:each="a : ${albums}" th:value="${a.id()}"
+                        th:text="${a.artistName()} + ' — ' + ${a.title()}">Album</option>
+            </select>
+        </label>
+        <p class="field-error" th:if="${#fields.hasErrors('albumId')}" th:errors="*{albumId}"></p>
+
+        <fieldset>
+            <legend>Genres (up to 5)</legend>
+            <label class="check" th:each="g : ${genres}">
+                <input type="checkbox" th:field="*{genreIds}" th:value="${g.id()}">
+                <span th:text="${g.name()}">Pop</span>
+            </label>
+        </fieldset>
+        <p class="field-error" th:if="${#fields.hasErrors('genreIds')}" th:errors="*{genreIds}"></p>
+
+        <label>Audio file (mp3, wav, ogg, m4a, flac — max 20 MB)
+            <input type="file" name="audioFile" accept="audio/*">
+        </label>
+        <p class="field-error" th:if="${fileError}" th:text="${fileError}"></p>
+
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+</main>
+<footer th:replace="~{fragments :: player}"></footer>
+</body>
+</html>

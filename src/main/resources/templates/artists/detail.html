@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head(${artist.name()})}"></head>
+<body>
+<header th:replace="~{fragments :: header('artists')}"></header>
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <section class="detail-head">
+        <img class="cover-lg round" th:if="${artist.imageUrl()}" th:src="@{${artist.imageUrl()}}" alt="">
+        <div>
+            <p class="eyebrow">Artist</p>
+            <h1 th:text="${artist.name()}">Artist</h1>
+            <p class="muted" th:text="${artist.bio()}">Bio</p>
+        </div>
+    </section>
+
+    <h2>Albums</h2>
+    <div class="grid">
+        <a class="card" th:each="album : ${albums}" th:href="@{/albums/{id}(id=${album.id()})}">
+            <img th:if="${album.coverUrl()}" th:src="@{${album.coverUrl()}}" alt="">
+            <div th:unless="${album.coverUrl()}" class="cover-placeholder">♪</div>
+            <strong th:text="${album.title()}">Album</strong>
+            <span class="muted"
+                  th:text="${#temporals.format(album.releaseDate(), 'yyyy')} + ' · ' + ${album.songCount()} + ' songs'">2024</span>
+        </a>
+    </div>
+    <p th:if="${#lists.isEmpty(albums)}" class="muted">No albums yet.</p>
+
+    <div class="two-col">
+        <section class="panel">
+            <h2>New album</h2>
+            <form th:action="@{/artists/{id}/albums(id=${artist.id()})}" th:object="${albumForm}"
+                  method="post" enctype="multipart/form-data" class="form">
+                <input type="hidden" th:field="*{artistId}">
+                <label>Title
+                    <input type="text" th:field="*{title}" th:errorclass="invalid">
+                </label>
+                <p class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
+                <label>Release date
+                    <input type="date" th:field="*{releaseDate}" th:errorclass="invalid">
+                </label>
+                <p class="field-error" th:if="${#fields.hasErrors('releaseDate')}"
+                   th:errors="*{releaseDate}"></p>
+                <label>Cover image (optional)
+                    <input type="file" name="cover" accept="image/*">
+                </label>
+                <p class="field-error" th:if="${fileError}" th:text="${fileError}"></p>
+                <button type="submit" class="btn btn-primary">Create album</button>
+            </form>
+        </section>
+        <section class="panel">
+            <h2>Danger zone</h2>
+            <form th:action="@{/artists/{id}/delete(id=${artist.id()})}" method="post"
+                  onsubmit="return confirm('Delete this artist with all albums and songs?');">
+                <button type="submit" class="btn btn-danger">Delete artist</button>
+            </form>
+        </section>
+    </div>
+</main>
+<footer th:replace="~{fragments :: player}"></footer>
+</body>
+</html>

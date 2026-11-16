@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Artists')}"></head>
+<body>
+<header th:replace="~{fragments :: header('artists')}"></header>
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+    <h1>Artists</h1>
+
+    <form th:action="@{/artists}" method="get" class="filters">
+        <input type="search" name="q" th:value="${q}" placeholder="Search artists">
+        <button type="submit" class="btn">Search</button>
+    </form>
+
+    <div class="grid">
+        <a class="card" th:each="artist : ${artists.content}"
+           th:href="@{/artists/{id}(id=${artist.id()})}">
+            <img class="round" th:if="${artist.imageUrl()}" th:src="@{${artist.imageUrl()}}" alt="">
+            <div th:unless="${artist.imageUrl()}" class="cover-placeholder round">♫</div>
+            <strong th:text="${artist.name()}">Artist</strong>
+            <span class="muted" th:text="${artist.albumCount()} + ' albums'">0 albums</span>
+        </a>
+    </div>
+    <nav th:replace="~{fragments :: pager(${artists}, @{/artists(q=${q})})}"></nav>
+
+    <section class="panel narrow">
+        <h2>New artist</h2>
+        <form th:action="@{/artists}" th:object="${artistForm}" method="post"
+              enctype="multipart/form-data" class="form">
+            <label>Name
+                <input type="text" th:field="*{name}" th:errorclass="invalid">
+            </label>
+            <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+            <label>Bio
+                <textarea rows="3" th:field="*{bio}" th:errorclass="invalid"></textarea>
+            </label>
+            <p class="field-error" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}"></p>
+            <label>Photo (optional)
+                <input type="file" name="image" accept="image/*">
+            </label>
+            <p class="field-error" th:if="${fileError}" th:text="${fileError}"></p>
+            <button type="submit" class="btn btn-primary">Create artist</button>
+        </form>
+    </section>
+</main>
+<footer th:replace="~{fragments :: player}"></footer>
+</body>
+</html>

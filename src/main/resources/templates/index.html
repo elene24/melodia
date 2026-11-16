@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Home')}"></head>
+<body>
+<header th:replace="~{fragments :: header('home')}"></header>
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <section class="hero">
+        <h1>Good music, all in one place.</h1>
+        <p>Upload tracks, organise albums and build playlists.</p>
+    </section>
+
+    <section>
+        <h2>Trending now</h2>
+        <ol class="chart">
+            <li th:each="song, stat : ${trending}">
+                <span class="rank" th:text="${stat.count}">1</span>
+                <button th:replace="~{fragments :: playButton(${song})}"></button>
+                <img class="thumb" th:if="${song.coverUrl()}" th:src="@{${song.coverUrl()}}" alt="">
+                <div class="grow">
+                    <a th:href="@{/songs/{id}(id=${song.id()})}" class="title"
+                       th:text="${song.title()}">Title</a>
+                    <div class="muted" th:text="${song.artistName()}">Artist</div>
+                </div>
+                <span class="muted" th:text="${#numbers.formatInteger(song.playCount(), 1, 'COMMA')} + ' plays'">0 plays</span>
+            </li>
+        </ol>
+        <p th:if="${#lists.isEmpty(trending)}" class="muted">No songs yet.</p>
+    </section>
+
+    <section>
+        <h2>New albums</h2>
+        <div class="grid">
+            <a class="card" th:each="album : ${latestAlbums}"
+               th:href="@{/albums/{id}(id=${album.id()})}">
+                <img th:if="${album.coverUrl()}" th:src="@{${album.coverUrl()}}" alt="">
+                <div th:unless="${album.coverUrl()}" class="cover-placeholder">♪</div>
+                <strong th:text="${album.title()}">Album</strong>
+                <span class="muted" th:text="${album.artistName()}">Artist</span>
+            </a>
+        </div>
+    </section>
+
+    <div class="two-col">
+        <section>
+            <h2>Most liked</h2>
+            <table class="table">
+                <tr th:each="stat : ${mostLiked}">
+                    <td><a th:href="@{/songs/{id}(id=${stat.songId()})}"
+                           th:text="${stat.title()}">Song</a></td>
+                    <td class="muted" th:text="${stat.artistName()}">Artist</td>
+                    <td th:text="${stat.likes()} + ' ♥'">0</td>
+                </tr>
+            </table>
+        </section>
+        <section>
+            <h2>Genres</h2>
+            <div class="tags">
+                <a class="tag" th:each="g : ${genreStats}"
+                   th:href="@{/songs(genre=${g.name})}">
+                    <span th:text="${g.name}">Pop</span>
+                    <small th:text="${g.songCount}">0</small>
+                </a>
+            </div>
+        </section>
+    </div>
+</main>
+<footer th:replace="~{fragments :: player}"></footer>
+</body>
+</html>

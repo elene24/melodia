@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Songs')}"></head>
+<body>
+<header th:replace="~{fragments :: header('songs')}"></header>
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+    <h1>Songs</h1>
+
+    <form th:action="@{/songs}" method="get" class="filters">
+        <input type="search" name="q" th:value="${q}" placeholder="Search title or artist">
+        <select name="genre">
+            <option value="">All genres</option>
+            <option th:each="g : ${genres}" th:value="${g.name()}"
+                    th:text="${g.name()}" th:selected="${g.name() == genre}">Pop</option>
+        </select>
+        <select name="sort">
+            <option value="title,asc" th:selected="${sort == 'title,asc'}">Title A–Z</option>
+            <option value="title,desc" th:selected="${sort == 'title,desc'}">Title Z–A</option>
+            <option value="playCount,desc" th:selected="${sort == 'playCount,desc'}">Most played</option>
+            <option value="createdAt,desc" th:selected="${sort == 'createdAt,desc'}">Newest</option>
+            <option value="durationSeconds,asc" th:selected="${sort == 'durationSeconds,asc'}">Shortest</option>
+        </select>
+        <select name="size">
+            <option th:each="s : ${ {5, 10, 20} }" th:value="${s}" th:text="${s} + ' per page'"
+                    th:selected="${s == songs.size}">10</option>
+        </select>
+        <button type="submit" class="btn">Apply</button>
+    </form>
+
+    <p class="muted" th:text="${songs.totalElements} + ' songs found'">0 songs</p>
+
+    <table class="table songs">
+        <thead>
+        <tr><th></th><th>Title</th><th>Album</th><th>Genres</th><th>Time</th><th>Plays</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="song : ${songs.content}">
+            <td><button th:replace="~{fragments :: playButton(${song})}"></button></td>
+            <td>
+                <a th:href="@{/songs/{id}(id=${song.id()})}" class="title" th:text="${song.title()}">Title</a>
+                <div class="muted"><a th:href="@{/artists/{id}(id=${song.artistId()})}"
+                                      th:text="${song.artistName()}">Artist</a></div>
+            </td>
+            <td><a th:href="@{/albums/{id}(id=${song.albumId()})}" th:text="${song.albumTitle()}">Album</a></td>
+            <td><span class="tag small" th:each="g : ${song.genres()}" th:text="${g}">Pop</span></td>
+            <td th:text="${song.formattedDuration()}">3:00</td>
+            <td th:text="${song.playCount()}">0</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <nav th:replace="~{fragments :: pager(${songs}, @{/songs(q=${q},genre=${genre},sort=${sort},size=${songs.size})})}"></nav>
+</main>
+<footer th:replace="~{fragments :: player}"></footer>
+</body>
+</html>

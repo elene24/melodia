@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head(${song.title()})}"></head>
+<body>
+<header th:replace="~{fragments :: header('songs')}"></header>
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <section class="detail-head">
+        <img class="cover-lg" th:if="${song.coverUrl()}" th:src="@{${song.coverUrl()}}" alt="">
+        <div>
+            <p class="eyebrow">Song</p>
+            <h1 th:text="${song.title()}">Title</h1>
+            <p>
+                <a th:href="@{/artists/{id}(id=${song.artistId()})}" th:text="${song.artistName()}">Artist</a>
+                · <a th:href="@{/albums/{id}(id=${song.albumId()})}" th:text="${song.albumTitle()}">Album</a>
+                · <span th:text="${song.formattedDuration()}">3:00</span>
+                · <span th:text="${song.playCount()} + ' plays'">0 plays</span>
+            </p>
+            <p><span class="tag small" th:each="g : ${song.genres()}" th:text="${g}">Pop</span></p>
+            <button th:replace="~{fragments :: playButton(${song})}"></button>
+        </div>
+    </section>
+
+    <div class="two-col">
+        <section class="panel">
+            <h2>Add to playlist</h2>
+            <form th:action="@{/songs/{id}/playlist(id=${song.id()})}" method="post" class="inline-form"
+                  th:unless="${#lists.isEmpty(playlists)}">
+                <select name="playlistId">
+                    <option th:each="p : ${playlists}" th:value="${p.id()}"
+                            th:text="${p.name()} + ' (' + ${p.ownerName()} + ')'">Playlist</option>
+                </select>
+                <button type="submit" class="btn">Add</button>
+            </form>
+            <p class="muted" th:if="${#lists.isEmpty(playlists)}">
+                No playlists yet. <a th:href="@{/playlists}">Create one</a>.
+            </p>
+        </section>
+        <section class="panel">
+            <h2>Danger zone</h2>
+            <form th:action="@{/songs/{id}/delete(id=${song.id()})}" method="post"
+                  onsubmit="return confirm('Delete this song and its audio file?');">
+                <button type="submit" class="btn btn-danger">Delete song</button>
+            </form>
+        </section>
+    </div>
+</main>
+<footer th:replace="~{fragments :: player}"></footer>
+</body>
+</html>

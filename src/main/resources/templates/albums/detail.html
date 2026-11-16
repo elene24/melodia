@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head(${album.title()})}"></head>
+<body>
+<header th:replace="~{fragments :: header('artists')}"></header>
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <section class="detail-head">
+        <img class="cover-lg" th:if="${album.coverUrl()}" th:src="@{${album.coverUrl()}}" alt="">
+        <div>
+            <p class="eyebrow">Album</p>
+            <h1 th:text="${album.title()}">Album</h1>
+            <p>
+                <a th:href="@{/artists/{id}(id=${album.artistId()})}" th:text="${album.artistName()}">Artist</a>
+                · <span th:text="${#temporals.format(album.releaseDate(), 'd MMMM yyyy')}">date</span>
+                · <span th:text="${album.songCount()} + ' songs'">0 songs</span>
+            </p>
+            <a th:href="@{/songs/new(albumId=${album.id()})}" class="btn btn-primary">+ Add a song</a>
+        </div>
+    </section>
+
+    <table class="table songs">
+        <thead><tr><th></th><th>#</th><th>Title</th><th>Time</th><th>Plays</th></tr></thead>
+        <tbody>
+        <tr th:each="song, stat : ${songs}">
+            <td><button th:replace="~{fragments :: playButton(${song})}"></button></td>
+            <td class="muted" th:text="${stat.count}">1</td>
+            <td><a th:href="@{/songs/{id}(id=${song.id()})}" th:text="${song.title()}">Title</a></td>
+            <td th:text="${song.formattedDuration()}">3:00</td>
+            <td th:text="${song.playCount()}">0</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <form th:action="@{/albums/{id}/delete(id=${album.id()})}" method="post"
+          onsubmit="return confirm('Delete this album and all its songs?');">
+        <button type="submit" class="btn btn-danger">Delete album</button>
+    </form>
+</main>
+<footer th:replace="~{fragments :: player}"></footer>
+</body>
+</html>

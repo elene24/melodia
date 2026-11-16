@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Error')}"></head>
+<body>
+<header th:replace="~{fragments :: header('')}"></header>
+<main class="container narrow">
+    <section class="panel error-panel">
+        <p class="eyebrow" th:text="${status}">404</p>
+        <h1 th:text="${error}">Not Found</h1>
+        <p th:text="${message}">Something went wrong.</p>
+        <a th:href="@{/}" class="btn btn-primary">Back to home</a>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments :: head('Playlists')}"></head>
+<body>
+<header th:replace="~{fragments :: header('playlists')}"></header>
+<main class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+    <h1>Playlists</h1>
+
+    <div class="grid">
+        <a class="card playlist-card" th:each="p : ${playlists.content}"
+           th:href="@{/playlists/{id}(id=${p.id()})}">
+            <div class="cover-placeholder">≡</div>
+            <strong th:text="${p.name()}">Playlist</strong>
+            <span class="muted" th:text="'by ' + ${p.ownerName()} + ' · ' + ${p.songCount()} + ' songs'">by</span>
+        </a>
+    </div>
+    <p th:if="${playlists.totalElements == 0}" class="muted">No playlists yet.</p>
+    <nav th:replace="~{fragments :: pager(${playlists}, @{/playlists})}"></nav>
+
+    <section class="panel narrow">
+        <h2>New playlist</h2>
+        <form th:action="@{/playlists}" th:object="${playlistForm}" method="post" class="form">
+            <label>Owner
+                <select name="ownerId">
+                    <option th:each="u : ${users}" th:value="${u.id()}"
+                            th:text="${u.displayName()} + ' (@' + ${u.username()} + ')'"
+                            th:selected="${u.id() == selectedOwnerId}">User</option>
+                </select>
+            </label>
+            <label>Name
+                <input type="text" th:field="*{name}" th:errorclass="invalid">
+            </label>
+            <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+            <label>Description
+                <textarea rows="2" th:field="*{description}" th:errorclass="invalid"></textarea>
+            </label>
+            <p class="field-error" th:if="${#fields.hasErrors('description')}"
+               th:errors="*{description}"></p>
+            <button type="submit" class="btn btn-primary">Create playlist</button>
+        </form>
+    </section>
+</main>
+<footer th:replace="~{fragments :: player}"></footer>
+</body>
+</html>

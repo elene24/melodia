@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · Melodia'">Melodia</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/player.js}" defer></script>
+</head>
+<body>
+
+<header th:fragment="header(active)" class="topbar">
+    <a th:href="@{/}" class="brand">
+        <span class="brand-mark">◐</span> Melodia
+    </a>
+    <nav class="nav">
+        <a th:href="@{/}" th:classappend="${active == 'home'} ? 'active'">Home</a>
+        <a th:href="@{/songs}" th:classappend="${active == 'songs'} ? 'active'">Songs</a>
+        <a th:href="@{/artists}" th:classappend="${active == 'artists'} ? 'active'">Artists</a>
+        <a th:href="@{/playlists}" th:classappend="${active == 'playlists'} ? 'active'">Playlists</a>
+    </nav>
+    <a th:href="@{/songs/new}" class="btn btn-primary">+ Upload song</a>
+</header>
+
+<div th:fragment="flash">
+    <div class="flash flash-ok" th:if="${message}" th:text="${message}">Saved</div>
+    <div class="flash flash-err" th:if="${error}" th:text="${error}">Error</div>
+</div>
+
+<!-- Play button: every song row uses this fragment -->
+<button th:fragment="playButton(song)" type="button" class="play-btn"
+        th:data-id="${song.id()}"
+        th:data-src="@{${song.streamUrl()}}"
+        th:data-title="${song.title()}"
+        th:data-artist="${song.artistName()}"
+        th:data-cover="${song.coverUrl() != null} ? @{${song.coverUrl()}} : ''"
+        title="Play">▶</button>
+
+<!-- Pagination links. "base" is the list URL with its filters. -->
+<nav th:fragment="pager(page, base)" class="pager" th:if="${page.totalPages > 1}"
+     th:with="sep=${#strings.contains(base, '?')} ? '&' : '?'">
+    <a th:if="${page.hasPrevious()}"
+       th:href="${base + sep + 'page=' + (page.number - 1)}">‹ Prev</a>
+    <th:block th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}">
+        <span th:if="${i == page.number}" class="current" th:text="${i + 1}">1</span>
+        <a th:unless="${i == page.number}"
+           th:href="${base + sep + 'page=' + i}" th:text="${i + 1}">2</a>
+    </th:block>
+    <a th:if="${page.hasNext()}"
+       th:href="${base + sep + 'page=' + (page.number + 1)}">Next ›</a>
+</nav>
+
+<footer th:fragment="player" class="player-bar">
+    <div class="now-playing">
+        <img id="np-cover" alt="" src="" hidden>
+        <div>
+            <div id="np-title" class="np-title">Nothing playing</div>
+            <div id="np-artist" class="np-artist">Pick a song and press ▶</div>
+        </div>
+    </div>
+    <audio id="player" controls preload="none"></audio>
+</footer>
+
+</body>
+</html>
